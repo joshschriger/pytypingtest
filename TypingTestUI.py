@@ -27,6 +27,7 @@ root.resizable(width=False, height=True)
 root.minsize(width=725, height=400)
 root.title("Typing Test")
 root.iconbitmap('JS kbd Logo.ico')
+root['background'] = '#121212'
 
 
 # functions
@@ -139,23 +140,26 @@ timeCurrent = time.time()
 wordsPerMin = 0
 
 # creating widgets
-prevWpmText = Label(root, text="Previous WPM = " + str(wordsPerMin), width=20)
-title = Label(root, text='Typing Test', pady=10, font=('Arial', 16))
-testTypeButton = Button(root, text=testType, command=swapTestType)
+prevWpmText = Label(root, text="Previous WPM = " +
+                    str(wordsPerMin), width=20, bg='#121212', fg='White')
+title = Label(root, text='Typing Test', pady=10,
+              font=('Arial', 16), bg='#121212', fg='White')
+testTypeButton = Button(root, text=testType,
+                        command=swapTestType, bg='#333333', fg='White')
 
 toType = Label(root, text=wordBank, wraplength=512,
-               font=('Arial', 16), height=10)  # 246
-slider = Scale(orient='vertical', from_=60, to=10, variable=wordTotal, length = 250, width = 20)
+               font=('Arial', 16), height=10, bg='#121212', fg='White')  # 246
+slider = Scale(orient='vertical', from_=60, to=10, variable=wordTotal,
+               length=250, width=20, bg='#333333', fg='White', troughcolor = '#666666')
 
 
-entryField = Entry(root, width=100, borderwidth=3)
-startButton = Button(root, text='Start Game',
-                     command=startAction, fg='white', bg='gray')
+entryField = Entry(root, width=100, borderwidth=3, bg='#333333', fg='White')
+startButton = Button(root, text='Start Game', command=startAction, bg='#333333', fg='White')
 
 # placing widgets on the root window
 # row 0
-prevWpmText.grid(row=0, column=0)
-title.grid(row=0, column=1)
+title.grid(row=0, column=0)
+prevWpmText.grid(row=0, column=1)
 testTypeButton.grid(row=0, column=2)
 
 # row 1
