@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
-import pyglet
+from tkinter import font
 import random
 import time
 import json
@@ -13,17 +13,19 @@ global completedGame
 
 wordTotal = 30  # time/words default: 30 seconds
 testType = 'Timed'
-wordBank = 'Text that needs to be typed will be here'
-wordInput = ''
+wordBank = 'To test your typing speed, press enter and start typing!'
 pressedOnce = False
 completedGame = False
 timeStart = 0
 timeEnd = 0
 
+
+#font = Font(family = 'roboto', weight = 'mono')
+
 # creating the GUI
 root = Tk()
-root.geometry('725x400')
-root.resizable(width=False, height=True)
+root.geometry('936x464')
+root.resizable(width=True, height=True)
 root.minsize(width=725, height=400)
 root.title("Typing Test")
 root.iconbitmap('JS kbd Logo.ico')
@@ -51,8 +53,7 @@ def startAction():
     completedGame = False
     pressedOnce = False
     wordTotal = slider.get()
-    entryField.delete(0, END)
-   #  if valWordTotal():
+    entryField.delete(1.0, 'end-1c')
     generateWords(wordDict, int(wordTotal))
 
 
@@ -65,11 +66,13 @@ def typingTest():
         root.update()
         while not completedGame:
             root.update()
-            if (len(entryField.get()) >= len(wordBank)):
+            if (len(entryField.get(1.0, 'end-1c')) >= len(wordBank)):
                 timeEnd = time.time()
                 completedGame = True
                 pressedOnce = False
-                input = entryField.get()
+                input = entryField.get(1.0, 'end-1c')
+                print(entryField.get(1.0, 'end-1c'))
+                print(wordBank)
                 scoreCalculation(timeEnd-timeStart, input)
 
     elif testType == 'Timed':
@@ -81,18 +84,30 @@ def typingTest():
                 timeEnd = time.time()
                 completedGame = True
                 pressedOnce = False
-                input = entryField.get()
+                input = entryField.get(1.0, 'end-1c')
                 scoreCalculation(wordTotal, input)
 
 
 def enterPressed(event):
+    pressedOnce = False
     startAction()
 
 
 def scoreCalculation(timeTaken, input):
     wordsPerMin = round(calculateWpm(timeTaken, input), 2)
-    messagebox.showinfo("Scores", "Words Per Minute: " + str(wordsPerMin))
-    prevWpmText['text'] = "Previous WPM = " + str(wordsPerMin)
+    wordBank = toType['text']
+    accuracy = round(calculateAccuracy(wordBank, input), 2)
+    scores['text'] = str(wordsPerMin) + "\n" + str(accuracy) + "%"
+
+
+def calculateAccuracy(wordBank, input):
+    correctKeys = 0
+    print (len(input))
+    for i in range(len(input)):
+        if input[i] == wordBank[i]:
+            correctKeys += 1
+    accuracy = correctKeys / len(input) * 100
+    return accuracy
 
 
 def calculateWpm(time, input):
@@ -110,12 +125,12 @@ def swapTestType():
         testType = 'Words'
 
 
-def errorPopup(message):
-    messagebox.showerror("Error", message)
-
-
 def keyPressed(event):
     global pressedOnce
+    if toType['text'] == 'To test your typing speed, press enter and start typing!':
+        messagebox.showwarning(
+            title='Error', message='You must generate a new word bank before testing\nTo do so, press enter or click the Start Game button')
+        return 0
     if not pressedOnce:
         pressedOnce = True
         startTimer()
@@ -137,39 +152,46 @@ root.bind('<Return>', enterPressed)
 root.bind('<Key>', keyPressed)
 
 timeCurrent = time.time()
-wordsPerMin = 0
+wordsPerMin = 0.00
+accuracy = 0.00
 
 # creating widgets
-prevWpmText = Label(root, text="Previous WPM = " +
-                    str(wordsPerMin), width=20, bg='#121212', fg='White')
-title = Label(root, text='Typing Test', pady=10,
-              font=('Arial', 16), bg='#121212', fg='White')
-testTypeButton = Button(root, text=testType,
-                        command=swapTestType, bg='#333333', fg='White')
+title = Label(root, text='Typing Test', font=('Lucida Console',
+              16), pady=10, bg='#121212', fg='White', width=30)
+scoreText = Label(root, text="Words Per Minute =\nAccuracy =", font=(
+    'Lucida Console', 8), bg='#121212', fg='White', justify=RIGHT, anchor=E, width=20)
+scores = Label(root, text=str(wordsPerMin) + '\n' + str(accuracy) + '%', font=(
+    'Lucida Console', 8), bg='#121212', fg='Red', justify=LEFT, anchor=W, width=10)
 
-toType = Label(root, text=wordBank, wraplength=512,
-               font=('Arial', 16), height=10, bg='#121212', fg='White')  # 246
+testTypeButton = Button(root, text=testType, font=(
+    'Lucida Console', 8), command=swapTestType, bg='#333333', fg='White')
+
+toType = Label(root, text=wordBank, font=('Lucida Console', 16),
+               wraplength=640, height=14, bg='#121212', fg='White')  # 246
 slider = Scale(orient='vertical', from_=60, to=10, variable=wordTotal,
-               length=250, width=20, bg='#333333', fg='White', troughcolor = '#666666')
+               length=250, width=20, bg='#333333', fg='White', troughcolor='#666666')
 
 
-entryField = Entry(root, width=100, borderwidth=3, bg='#333333', fg='White')
-startButton = Button(root, text='Start Game', command=startAction, bg='#333333', fg='White')
+entryField = Text(root, width=100, height=2, borderwidth=3, bg='#333333',
+                  fg='White', font=('Lucida Console', 10), padx=1, pady=1)
+startButton = Button(root, text='Start Game', font=(
+    'Lucida Console', 8), command=startAction, bg='#333333', fg='White')
 
 # placing widgets on the root window
 # row 0
 title.grid(row=0, column=0)
-prevWpmText.grid(row=0, column=1)
-testTypeButton.grid(row=0, column=2)
+scoreText.grid(row=0, column=1)
+scores.grid(row=0, column=2)
+testTypeButton.grid(row=0, column=3)
 
 # row 1
-toType.grid(row=1, column=0, pady=30, padx=10, columnspan=2)
-slider.grid(row=1, column=2)
+toType.grid(row=1, column=0, pady=30, padx=10, columnspan=3)
+slider.grid(row=1, column=3)
 slider.set(30)
 
 # row 2
-entryField.grid(row=2, column=0, padx=10, pady=10, columnspan=2)
-startButton.grid(row=2, column=2, padx=10)
+entryField.grid(row=2, column=0, padx=10, pady=10, columnspan=3)
+startButton.grid(row=2, column=3, padx=10)
 
 
 root.mainloop()
