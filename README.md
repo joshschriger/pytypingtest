@@ -1,3 +1,5 @@
-# pytypingtest
+# Python Typing Test Application
 
-typing test application in python
+Typing speed application based off of MonkeyType
+
+My first time using Python!
